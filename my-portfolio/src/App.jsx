@@ -6,15 +6,20 @@ import jpvlLogo from './assets/jpvl-logo.jpg';
 import digitalUmbrellaLogo from './assets/digital-umbrella-logo.png';
 import drdoLogo from './assets/drdo-logo.jpg';
 import React from 'react';
+import SkillIcon3D from './components/SkillIcon3D';
+import ContactForm from './components/ContactForm';
+import Contact3DIcon from './components/Contact3DIcon';
+import portImage from './assets/portimage.jpeg';
 
-function AnimatedBackground() {
+function AnimatedBackground({ theme }) {
+  const bgColor = theme === 'light' ? '#f7f7fa' : '#1a1a2e';
   return (
     <Canvas camera={{ position: [0, 0, 5], fov: 60 }} style={{ position: 'fixed', top: 0, left: 0, zIndex: 0, width: '100vw', height: '100vh' }}>
       <ambientLight intensity={1} />
       <mesh position={[0, 0, 0]}>
         <planeGeometry args={[20, 12, 1, 1]} />
         <meshBasicMaterial 
-          color="#1a1a2e"
+          color={bgColor}
           transparent
           opacity={0.8}
         />
@@ -31,7 +36,7 @@ const sections = [
   { id: 'contact', label: 'Contact' },
 ]
 
-function Navbar() {
+function Navbar({ theme, toggleTheme }) {
   return (
     <nav className="navbar new-navbar">
       <div className="navbar-left">
@@ -42,6 +47,11 @@ function Navbar() {
         <li><a href="#about">About</a></li>
         <li><a href="#work">Work</a></li>
         <li><a href="#contact">Contact</a></li>
+        <li>
+          <button className="theme-toggle-btn" onClick={toggleTheme} title="Toggle light/dark mode">
+            {theme === 'dark' ? '🌙' : '☀️'}
+        </button>
+        </li>
       </ul>
     </nav>
   )
@@ -49,10 +59,15 @@ function Navbar() {
 
 function Hero() {
   return (
-    <section className="hero-section new-hero-section center-hero">
-      <div className="hero-content">
+    <section className="hero-section new-hero-section hero-left-layout">
+      <div className="hero-content hero-content-left">
         <h1><span className="hero-hi">Hi, I'm</span> <span className="hero-name">Anshika Sharma</span></h1>
         <h2 className="hero-subtitle">I develop 3D visuals, user interfaces and web applications</h2>
+      </div>
+      <div className="hero-image-3d-container">
+        <div className="hero-image-glow-ring">
+          <img src={portImage} alt="Anshika Sharma" className="hero-image-3d" />
+        </div>
       </div>
       <div className="hero-scroll-indicator bottom-scroll">
         <span className="mouse-icon"></span>
@@ -107,7 +122,7 @@ function Introduction() {
     <section className={`intro-section${showSection ? ' show' : ''}`} ref={introRef}>
       <div className="intro-inner">
         <div className="intro-label">INTRODUCTION</div>
-        <h2 className="intro-title">Overview<span className="intro-dot">.</span></h2>
+        <h2 className="intro-title">Overview<span className="section-dot"></span></h2>
         <p className="intro-desc">
           I'm Anshika Sharma, a dedicated Software Developer with hands-on experience in building full-stack web applications. I specialize in React.js, Next.js, Tailwind CSS, and Three.js on the frontend, and Node.js, Express.js, MongoDB, and MySQL on the backend. With a strong command of HTML, CSS, JavaScript, and TypeScript, I focus on creating clean, responsive, and efficient solutions that deliver real impact.
         </p>
@@ -122,6 +137,38 @@ function Introduction() {
       </div>
     </section>
   )
+}
+
+function SkillsSection() {
+  const skills = [
+    { name: 'HTML', icon: '/icons/html.svg' },
+    { name: 'CSS', icon: '/icons/css.svg' },
+    { name: 'JavaScript', icon: '/icons/javascript.svg' },
+    { name: 'React', icon: '/icons/react.svg' },
+    { name: 'Next.js', icon: '/icons/nextjs.svg' },
+    { name: 'Tailwind', icon: '/icons/tailwindcss.svg' },
+    { name: 'Node.js', icon: '/icons/nodejs.svg' },
+    { name: 'Express', icon: '/icons/express.svg' },
+    { name: 'TypeScript', icon: '/icons/typescript.svg' },
+    { name: 'SQL', icon: '/icons/sql.svg' },
+    { name: 'MongoDB', icon: '/icons/mongodb.svg' },
+    { name: 'C++', icon: '/icons/cpp.svg' },
+    { name: 'GitHub', icon: '/icons/github.svg' },
+  ];
+  return (
+    <section className="skills-section honeycomb-skills">
+      <div className="skills-row">
+        {skills.slice(0, 7).map(skill => (
+          <SkillIcon3D key={skill.name} icon={skill.icon} />
+        ))}
+      </div>
+      <div className="skills-row skills-row-offset">
+        {skills.slice(7).map(skill => (
+          <SkillIcon3D key={skill.name} icon={skill.icon} />
+        ))}
+      </div>
+    </section>
+  );
 }
 
 function WorkExperience() {
@@ -190,7 +237,7 @@ function WorkExperience() {
   return (
     <section className={`work-section${showSection ? ' show' : ''}`} ref={workRef}>
       <div className="work-label">WHAT I HAVE DONE SO FAR</div>
-      <h2 className="work-title">Work Experience<span className="work-dot">.</span></h2>
+      <h2 className="work-title">Work Experience<span className="section-dot"></span></h2>
       <div className="timeline timeline-centered">
         <div className="timeline-line timeline-line-centered"></div>
         {experiences.map((exp, i) => {
@@ -223,16 +270,63 @@ function WorkExperience() {
   );
 }
 
-function App() {
+function ContactSection() {
   return (
-    <div className="portfolio-root">
-      <AnimatedBackground />
-      <Navbar />
+    <section className="contact-section-flex">
+      <ContactForm />
+      <div className="contact-3d-illustration">
+        <Contact3DIcon />
+      </div>
+    </section>
+  );
+}
+
+function App() {
+  const [theme, setTheme] = useState(() => {
+    const savedTheme = localStorage.getItem('theme');
+    if (!savedTheme) {
+      localStorage.setItem('theme', 'dark');
+      return 'dark';
+    }
+    return savedTheme;
+  });
+  useEffect(() => {
+    localStorage.setItem('theme', theme);
+  }, [theme]);
+  const toggleTheme = () => setTheme(theme === 'dark' ? 'light' : 'dark');
+  return (
+    <div className={`portfolio-root ${theme}`}>
+      <AnimatedBackground theme={theme} />
+      <Navbar theme={theme} toggleTheme={toggleTheme} />
       <main className="portfolio-content scrollable">
         <Hero />
         <Introduction />
         <WorkExperience />
+        <SkillsSection />
+        <ContactSection />
       </main>
+      <footer className="custom-footer">
+        <div className="footer-content">
+          <span className="footer-copyright">&copy; {new Date().getFullYear()} Anshika Sharma</span>
+          <div className="footer-socials">
+            <a href="https://www.linkedin.com/in/anshika-sharma-3aa4241b7" target="_blank" rel="noopener noreferrer" title="LinkedIn" className="footer-icon-link">
+              <svg className="footer-icon" viewBox="0 0 24 24" width="22" height="22" fill="currentColor"><path d="M19 0h-14c-2.76 0-5 2.24-5 5v14c0 2.76 2.24 5 5 5h14c2.76 0 5-2.24 5-5v-14c0-2.76-2.24-5-5-5zm-11 19h-3v-9h3v9zm-1.5-10.28c-.97 0-1.75-.79-1.75-1.75s.78-1.75 1.75-1.75 1.75.79 1.75 1.75-.78 1.75-1.75 1.75zm15.5 10.28h-3v-4.5c0-1.08-.02-2.47-1.5-2.47-1.5 0-1.73 1.17-1.73 2.39v4.58h-3v-9h2.88v1.23h.04c.4-.75 1.38-1.54 2.84-1.54 3.04 0 3.6 2 3.6 4.59v4.72z"/></svg>
+            </a>
+            <a href="https://github.com/anshikasharma148" target="_blank" rel="noopener noreferrer" title="GitHub" className="footer-icon-link">
+              <svg className="footer-icon" viewBox="0 0 24 24" width="22" height="22" fill="currentColor"><path d="M12 0.297c-6.63 0-12 5.373-12 12 0 5.303 3.438 9.8 8.205 11.387.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.084-.729.084-.729 1.205.084 1.84 1.236 1.84 1.236 1.07 1.834 2.809 1.304 3.495.997.108-.775.418-1.305.762-1.605-2.665-.305-5.466-1.334-5.466-5.931 0-1.31.469-2.381 1.236-3.221-.124-.303-.535-1.523.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.553 3.297-1.23 3.297-1.23.653 1.653.242 2.873.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.803 5.624-5.475 5.921.43.371.823 1.102.823 2.222 0 1.606-.014 2.898-.014 3.293 0 .322.218.694.825.576 4.765-1.588 8.2-6.084 8.2-11.386 0-6.627-5.373-12-12-12z"/></svg>
+            </a>
+            <a href="https://www.instagram.com/anshika_sharma_128/profilecard/?igsh=MTRnM2xyNmcxemtpcg==" target="_blank" rel="noopener noreferrer" title="Instagram" className="footer-icon-link">
+              <svg className="footer-icon" viewBox="0 0 24 24" width="22" height="22" fill="currentColor"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 1.366.062 2.633.334 3.608 1.308.974.974 1.246 2.242 1.308 3.608.058 1.266.069 1.646.069 4.85s-.012 3.584-.07 4.85c-.062 1.366-.334 2.633-1.308 3.608-.974.974-2.242 1.246-3.608 1.308-1.266.058-1.646.069-4.85.069s-3.584-.012-4.85-.07c-1.366-.062-2.633-.334-3.608-1.308-.974-.974-1.246-2.242-1.308-3.608-.058-1.266-.069-1.646-.069-4.85s.012-3.584.07-4.85c.062-1.366.334-2.633 1.308-3.608.974-.974 2.242-1.246 3.608-1.308 1.266-.058 1.646-.069 4.85-.069zm0-2.163c-3.259 0-3.667.012-4.947.07-1.276.058-2.687.334-3.678 1.325-.991.991-1.267 2.402-1.325 3.678-.058 1.28-.07 1.688-.07 4.947s.012 3.667.07 4.947c.058 1.276.334 2.687 1.325 3.678.991.991 2.402 1.267 3.678 1.325 1.28.058 1.688.07 4.947.07s3.667-.012 4.947-.07c1.276-.058 2.687-.334 3.678-1.325.991-.991 1.267-2.402 1.325-3.678.058-1.28.07-1.688.07-4.947s-.012-3.667-.07-4.947c-.058-1.276-.334-2.687-1.325-3.678-.991-.991-2.402-1.267-3.678-1.325-1.28-.058-1.688-.07-4.947-.07zm0 5.838a6.162 6.162 0 1 0 0 12.324 6.162 6.162 0 0 0 0-12.324zm0 10.162a3.999 3.999 0 1 1 0-7.998 3.999 3.999 0 0 1 0 7.998zm6.406-11.845a1.44 1.44 0 1 0 0 2.881 1.44 1.44 0 0 0 0-2.881z"/></svg>
+            </a>
+            <a href="tel:8707657707" title="Phone" className="footer-icon-link">
+              <svg className="footer-icon" viewBox="0 0 24 24" width="22" height="22" fill="currentColor"><path d="M6.62 10.79a15.053 15.053 0 0 0 6.59 6.59l2.2-2.2a1.003 1.003 0 0 1 1.01-.24c1.12.37 2.33.57 3.58.57.55 0 1 .45 1 1v3.5c0 .55-.45 1-1 1C10.07 22 2 13.93 2 4.5c0-.55.45-1 1-1H6.5c.55 0 1 .45 1 1 0 1.25.2 2.46.57 3.58.13.34.04.73-.24 1.01l-2.2 2.2z"/></svg>
+            </a>
+            <a href="mailto:its.anshika12003@gmail.com" title="Email" className="footer-icon-link">
+              <svg className="footer-icon" viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="2" y="4" width="20" height="16" rx="2"/><polyline points="22,6 12,13 2,6"/></svg>
+            </a>
+          </div>
+        </div>
+      </footer>
     </div>
   )
 }

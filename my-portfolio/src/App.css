@@ -1423,13 +1423,12 @@ header h2 {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 400px;
-  height: 400px;
+  width: 320px;
+  height: 320px;
   border-radius: 50%;
   background: transparent;
   box-shadow: none;
   position: relative;
-  margin-top: -40px;
 }
 .hero-image-glow-ring {
   width: 100%;
@@ -1440,19 +1439,19 @@ header h2 {
   justify-content: center;
   background: radial-gradient(circle at 60% 40%, #fff 0 40%, transparent 70%),
               conic-gradient(from 0deg, #00eaff, #7f5af0, #ff5470, #00eaff 100%);
-  box-shadow: 0 0 64px 24px #00eaff99, 0 0 128px 32px #7f5af099, 0 0 0 20px #181f3a;
+  box-shadow: 0 0 32px 8px #00eaff55, 0 0 64px 16px #7f5af055, 0 0 0 12px #181f3a;
   position: relative;
   padding: 0;
 }
 .hero-image-3d {
-  width: 320px;
-  height: 320px;
+  width: 240px;
+  height: 240px;
   max-width: 100%;
   max-height: 100%;
   object-fit: cover;
   border-radius: 50%;
-  box-shadow: 0 4px 32px 0 #0007;
-  border: 8px solid #fff;
+  box-shadow: 0 2px 16px 0 #0005;
+  border: 6px solid #fff;
   background: #23233b;
   transition: none;
   z-index: 2;
@@ -1461,20 +1460,17 @@ header h2 {
 @media (max-width: 900px) {
   .hero-image-3d-container {
     margin: 4vh auto 0 auto;
-    width: 220px;
-    height: 220px;
-    margin-top: 0;
+    width: 180px;
+    height: 180px;
   }
   .hero-image-glow-ring {
     width: 100%;
     height: 100%;
-    box-shadow: 0 0 32px 12px #00eaff99, 0 0 64px 16px #7f5af099, 0 0 0 10px #181f3a;
   }
   .hero-image-3d {
-    width: 160px;
-    height: 160px;
+    width: 120px;
+    height: 120px;
     max-width: 100%;
     max-height: 100%;
-    border-width: 6px;
   }
 }
