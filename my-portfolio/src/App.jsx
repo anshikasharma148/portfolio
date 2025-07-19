@@ -10,8 +10,24 @@ import SkillIcon3D from './components/SkillIcon3D';
 import ContactForm from './components/ContactForm';
 import Contact3DIcon from './components/Contact3DIcon';
 import portImage from './assets/portimage.jpeg';
+import cvPDF from './assets/anshika-sharma-cv.pdf';
 
-function AnimatedBackground({ theme }) {
+function AnimatedBackground({ theme, variant }) {
+  if (variant === 'particles') {
+    const bgColor = theme === 'light' ? '#f7f7fa' : '#1a1a2e';
+    return (
+      <Canvas camera={{ position: [0, 0, 8], fov: 60 }} style={{ position: 'fixed', top: 0, left: 0, zIndex: 0, width: '100vw', height: '100vh' }}>
+        <ambientLight intensity={0.7} />
+        {/* Background plane for theme color */}
+        <mesh position={[0, 0, -5]}>
+          <planeGeometry args={[40, 24, 1, 1]} />
+          <meshBasicMaterial color={bgColor} transparent opacity={0.98} />
+        </mesh>
+        <ParticlesBG theme={theme} />
+      </Canvas>
+    );
+  }
+  // fallback: flat color
   const bgColor = theme === 'light' ? '#f7f7fa' : '#1a1a2e';
   return (
     <Canvas camera={{ position: [0, 0, 5], fov: 60 }} style={{ position: 'fixed', top: 0, left: 0, zIndex: 0, width: '100vw', height: '100vh' }}>
@@ -28,6 +44,53 @@ function AnimatedBackground({ theme }) {
   )
 }
 
+function ParticlesBG({ theme }) {
+  const color = theme === 'light' ? '#222' : '#fff';
+  const numParticles = 200;
+  const particles = useMemo(() => {
+    return Array.from({ length: numParticles }, () => ({
+      position: [
+        (Math.random() - 0.5) * 16,
+        (Math.random() - 0.5) * 10,
+        (Math.random() - 0.5) * 8
+      ],
+      speed: [
+        (Math.random() - 0.5) * 0.01,
+        (Math.random() - 0.5) * 0.01,
+        (Math.random() - 0.5) * 0.01
+      ]
+    }));
+  }, []);
+  const meshRefs = useRef([]);
+  useFrame(() => {
+    meshRefs.current.forEach((ref, i) => {
+      if (ref) {
+        // Animate position
+        ref.position.x += particles[i].speed[0];
+        ref.position.y += particles[i].speed[1];
+        ref.position.z += particles[i].speed[2];
+        // Wrap around
+        if (ref.position.x > 8) ref.position.x = -8;
+        if (ref.position.x < -8) ref.position.x = 8;
+        if (ref.position.y > 5) ref.position.y = -5;
+        if (ref.position.y < -5) ref.position.y = 5;
+        if (ref.position.z > 4) ref.position.z = -4;
+        if (ref.position.z < -4) ref.position.z = 4;
+      }
+    });
+  });
+  return (
+    <>
+      {particles.map((p, i) => (
+        <mesh key={i} position={p.position} ref={el => meshRefs.current[i] = el}>
+          <sphereGeometry args={[0.09, 12, 12]} />
+          <meshStandardMaterial color={color} transparent opacity={0.7} />
+        </mesh>
+      ))}
+    </>
+  );
+}
+
 const sections = [
   { id: 'hero', label: 'Home' },
   { id: 'about', label: 'About' },
@@ -41,28 +104,72 @@ function Navbar({ theme, toggleTheme }) {
     <nav className="navbar new-navbar">
       <div className="navbar-left">
         <span className="logo-circle">A</span>
-        <span className="navbar-title">Anshika Sharma — 3D Portfolio</span>
+        <span className="navbar-title">Anshika Sharma</span>
       </div>
-      <ul className="navbar-links">
-        <li><a href="#about">About</a></li>
-        <li><a href="#work">Work</a></li>
-        <li><a href="#contact">Contact</a></li>
-        <li>
-          <button className="theme-toggle-btn" onClick={toggleTheme} title="Toggle light/dark mode">
-            {theme === 'dark' ? '🌙' : '☀️'}
+      <div className="navbar-links">
+        <a href="#overview">About</a>
+        <a href="#work">Work</a>
+        <a href="#skills">Skills</a>
+        <a href="#contact">Contact</a>
+        <button className="theme-toggle-btn" onClick={toggleTheme} title="Toggle light/dark mode">
+          {theme === 'dark' ? '🌙' : '☀️'}
         </button>
-        </li>
-      </ul>
+      </div>
     </nav>
   )
 }
 
 function Hero() {
+  // Typewriter animation for name
+  const fullName = 'Anshika Sharma';
+  const [displayName, setDisplayName] = useState('');
+  const [typing, setTyping] = useState(true);
+  const [index, setIndex] = useState(0);
+
+  useEffect(() => {
+    let timeout;
+    if (typing) {
+      if (index < fullName.length) {
+        timeout = setTimeout(() => {
+          setDisplayName(fullName.slice(0, index + 1));
+          setIndex(index + 1);
+        }, 120);
+      } else {
+        timeout = setTimeout(() => setTyping(false), 1200);
+      }
+    } else {
+      if (index > 0) {
+        timeout = setTimeout(() => {
+          setDisplayName(fullName.slice(0, index - 1));
+          setIndex(index - 1);
+        }, 60);
+      } else {
+        timeout = setTimeout(() => setTyping(true), 600);
+      }
+    }
+    return () => clearTimeout(timeout);
+  }, [typing, index, fullName]);
+
   return (
     <section className="hero-section new-hero-section hero-left-layout">
       <div className="hero-content hero-content-left">
-        <h1><span className="hero-hi">Hi, I'm</span> <span className="hero-name">Anshika Sharma</span></h1>
-        <h2 className="hero-subtitle">I develop 3D visuals, user interfaces and web applications</h2>
+        <h1>
+          <span className="hero-hi">Hi, I'm</span>
+          {' '}
+          <span className="hero-name">{displayName}<span className="type-cursor">|</span></span>
+        </h1>
+        <h2 className="hero-subtitle" style={{ fontFamily: 'Fira Mono, monospace', fontWeight: 500 }}>
+          Building modern web apps & software solutions.
+        </h2>
+        <a
+          href={cvPDF}
+          className="cta-btn hero-cv-btn"
+          target="_blank"
+          rel="noopener noreferrer"
+          style={{ marginTop: '1.2rem', display: 'inline-block' }}
+        >
+          Download CV
+        </a>
       </div>
       <div className="hero-image-3d-container">
         <div className="hero-image-glow-ring">
@@ -77,38 +184,16 @@ function Hero() {
 }
 
 function Introduction() {
-  const [showSection, setShowSection] = useState(false)
-  const [showCards, setShowCards] = useState([false, false, false, false, false])
+  const [visible, setVisible] = useState(false)
   const introRef = useRef()
 
   useEffect(() => {
     const observer = new IntersectionObserver(
-      ([entry]) => {
-        if (entry.isIntersecting) {
-          setShowSection(true)
-          // Trigger card animations after section is visible
-          const timers = [
-            setTimeout(() => setShowCards(s => [true, false, false, false, false]), 400),
-            setTimeout(() => setShowCards(s => [true, true, false, false, false]), 700),
-            setTimeout(() => setShowCards(s => [true, true, true, false, false]), 1000),
-            setTimeout(() => setShowCards(s => [true, true, true, true, false]), 1300),
-            setTimeout(() => setShowCards(s => [true, true, true, true, true]), 1600),
-          ]
-          return () => timers.forEach(clearTimeout)
-        }
-      },
+      ([entry]) => setVisible(entry.isIntersecting),
       { threshold: 0.2 }
     )
-
-    if (introRef.current) {
-      observer.observe(introRef.current)
-    }
-
-    return () => {
-      if (introRef.current) {
-        observer.unobserve(introRef.current)
-      }
-    }
+    if (introRef.current) observer.observe(introRef.current)
+    return () => { if (introRef.current) observer.unobserve(introRef.current) }
   }, [])
 
   const cards = [
@@ -119,7 +204,7 @@ function Introduction() {
     { title: 'REST API Developer', icon: '🔗' },
   ]
   return (
-    <section className={`intro-section${showSection ? ' show' : ''}`} ref={introRef}>
+    <section className={`intro-section section-animate${visible ? ' visible' : ''}`} ref={introRef} id="overview">
       <div className="intro-inner">
         <div className="intro-label">INTRODUCTION</div>
         <h2 className="intro-title">Overview<span className="section-dot"></span></h2>
@@ -129,7 +214,7 @@ function Introduction() {
       </div>
       <div className="intro-cards">
         {cards.map((card, i) => (
-          <div key={card.title} className={`intro-card${showCards[i] ? ' show' : ''}`} style={{ transitionDelay: `${i * 0.18 + 0.2}s` }}>
+          <div key={card.title} className={`intro-card${visible ? ' show' : ''}`} style={{ transitionDelay: `${i * 0.18 + 0.2}s` }}>
             <div className="intro-card-icon">{card.icon}</div>
             <div className="intro-card-title">{card.title}</div>
           </div>
@@ -140,6 +225,16 @@ function Introduction() {
 }
 
 function SkillsSection() {
+  const [visible, setVisible] = useState(false)
+  const skillsRef = useRef()
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      ([entry]) => setVisible(entry.isIntersecting),
+      { threshold: 0.2 }
+    )
+    if (skillsRef.current) observer.observe(skillsRef.current)
+    return () => { if (skillsRef.current) observer.unobserve(skillsRef.current) }
+  }, [])
   const skills = [
     { name: 'HTML', icon: '/icons/html.svg' },
     { name: 'CSS', icon: '/icons/css.svg' },
@@ -156,7 +251,7 @@ function SkillsSection() {
     { name: 'GitHub', icon: '/icons/github.svg' },
   ];
   return (
-    <section className="skills-section honeycomb-skills">
+    <section className={`skills-section honeycomb-skills section-animate${visible ? ' visible' : ''}`} id="skills" ref={skillsRef}>
       <div className="skills-row">
         {skills.slice(0, 7).map(skill => (
           <SkillIcon3D key={skill.name} icon={skill.icon} />
@@ -172,22 +267,12 @@ function SkillsSection() {
 }
 
 function WorkExperience() {
-  const [showSection, setShowSection] = useState(false)
+  const [visible, setVisible] = useState(false)
   const [showCards, setShowCards] = useState([false, false, false])
   const workRef = useRef()
   useEffect(() => {
     const observer = new IntersectionObserver(
-      ([entry]) => {
-        if (entry.isIntersecting) {
-          setShowSection(true)
-          const timers = [
-            setTimeout(() => setShowCards(s => [true, false, false]), 200),
-            setTimeout(() => setShowCards(s => [true, true, false]), 500),
-            setTimeout(() => setShowCards(s => [true, true, true]), 800),
-          ]
-          return () => timers.forEach(clearTimeout)
-        }
-      },
+      ([entry]) => setVisible(entry.isIntersecting),
       { threshold: 0.2 }
     )
     if (workRef.current) observer.observe(workRef.current)
@@ -235,7 +320,7 @@ function WorkExperience() {
   ]
   const cardHeight = 520; // Further increased for more vertical spacing
   return (
-    <section className={`work-section${showSection ? ' show' : ''}`} ref={workRef}>
+    <section className={`work-section section-animate-left${visible ? ' visible' : ''}`} ref={workRef} id="work">
       <div className="work-label">WHAT I HAVE DONE SO FAR</div>
       <h2 className="work-title">Work Experience<span className="section-dot"></span></h2>
       <div className="timeline timeline-centered">
@@ -248,7 +333,7 @@ function WorkExperience() {
               <div className="timeline-circle timeline-circle-centered" style={{ top: `calc(${i * cardHeight}px + 40px + 32px)`, left: '50%', transform: 'translateX(-50%)' }}>
                 <img src={exp.logo} alt={exp.company + ' logo'} className="timeline-logo" />
               </div>
-              <div className={`timeline-card timeline-card-centered${isLeft ? ' left' : ' right'}${showCards[i] ? ' show' : ''}`} style={{ top: cardTop }}>
+              <div className={`timeline-card timeline-card-centered${isLeft ? ' left' : ' right'}${visible ? ' show' : ''}`} style={{ top: cardTop }}>
                 <div className="timeline-content">
                   <div className="timeline-header">
                     <h3>{exp.title}</h3>
@@ -271,8 +356,18 @@ function WorkExperience() {
 }
 
 function ContactSection() {
+  const [visible, setVisible] = useState(false)
+  const contactRef = useRef()
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      ([entry]) => setVisible(entry.isIntersecting),
+      { threshold: 0.2 }
+    )
+    if (contactRef.current) observer.observe(contactRef.current)
+    return () => { if (contactRef.current) observer.unobserve(contactRef.current) }
+  }, [])
   return (
-    <section className="contact-section-flex">
+    <section className={`contact-section-flex section-animate-left${visible ? ' visible' : ''}`} id="contact" ref={contactRef}>
       <ContactForm />
       <div className="contact-3d-illustration">
         <Contact3DIcon />
@@ -293,10 +388,25 @@ function App() {
   useEffect(() => {
     localStorage.setItem('theme', theme);
   }, [theme]);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      const navbar = document.querySelector('.navbar');
+      if (navbar) {
+        if (window.scrollY > 10) {
+          navbar.classList.add('scrolled');
+        } else {
+          navbar.classList.remove('scrolled');
+        }
+      }
+    };
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
   const toggleTheme = () => setTheme(theme === 'dark' ? 'light' : 'dark');
   return (
     <div className={`portfolio-root ${theme}`}>
-      <AnimatedBackground theme={theme} />
+      <AnimatedBackground theme={theme} variant="particles" />
       <Navbar theme={theme} toggleTheme={toggleTheme} />
       <main className="portfolio-content scrollable">
         <Hero />
