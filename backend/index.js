@@ -6,7 +6,16 @@ const nodemailer = require('nodemailer');
 const app = express();
 const PORT = process.env.PORT || 5000;
 
-app.use(cors());
+const allowedOrigins = [
+  'https://portfolio-eta-ten-gtu0kqi8l7.vercel.app', // Vercel frontend
+  'http://localhost:5173' // local dev
+];
+
+app.use(cors({
+  origin: allowedOrigins,
+  methods: ['GET', 'POST'],
+  credentials: true
+}));
 app.use(express.json());
 
 app.post('/api/contact', async (req, res) => {
