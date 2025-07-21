@@ -100,21 +100,68 @@ const sections = [
 ]
 
 function Navbar({ theme, toggleTheme }) {
+  const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    const checkMobile = () => setIsMobile(window.innerWidth <= 768);
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
+
+  useEffect(() => {
+    console.log('isMobile:', isMobile);
+  }, [isMobile]);
+
+  // Lock scroll when sidebar is open
+  useEffect(() => {
+    if (sidebarOpen) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = '';
+    }
+    return () => { document.body.style.overflow = ''; };
+  }, [sidebarOpen]);
+
   return (
     <nav className="navbar new-navbar">
       <div className="navbar-left">
         <span className="logo-circle">A</span>
         <span className="navbar-title">Anshika Sharma</span>
       </div>
-      <div className="navbar-links">
-        <a href="#overview">About</a>
-        <a href="#work">Work</a>
-        <a href="#skills">Skills</a>
-        <a href="#contact">Contact</a>
-        <button className="theme-toggle-btn" onClick={toggleTheme} title="Toggle light/dark mode">
-          {theme === 'dark' ? '🌙' : '☀️'}
-        </button>
-      </div>
+      {isMobile ? (
+        <>
+          <button className="hamburger-menu debug-hamburger" aria-label="Open menu" onClick={() => setSidebarOpen(true)}>
+            <span></span><span></span><span></span>
+          </button>
+          {sidebarOpen && (
+            <>
+              <div className="sidebar-overlay" onClick={() => setSidebarOpen(false)}></div>
+              <aside className="sidebar-nav">
+                <button className="sidebar-close" aria-label="Close menu" onClick={() => setSidebarOpen(false)}>&times;</button>
+                <a href="#overview" onClick={() => setSidebarOpen(false)}>About</a>
+                <a href="#work" onClick={() => setSidebarOpen(false)}>Work</a>
+                <a href="#skills" onClick={() => setSidebarOpen(false)}>Skills</a>
+                <a href="#contact" onClick={() => setSidebarOpen(false)}>Contact</a>
+                <button className="theme-toggle-btn" onClick={toggleTheme} title="Toggle light/dark mode">
+                  {theme === 'dark' ? '🌙' : '☀️'}
+                </button>
+              </aside>
+            </>
+          )}
+        </>
+      ) : (
+        <div className="navbar-links">
+          <a href="#overview">About</a>
+          <a href="#work">Work</a>
+          <a href="#skills">Skills</a>
+          <a href="#contact">Contact</a>
+          <button className="theme-toggle-btn" onClick={toggleTheme} title="Toggle light/dark mode">
+            {theme === 'dark' ? '🌙' : '☀️'}
+          </button>
+        </div>
+      )}
     </nav>
   )
 }
