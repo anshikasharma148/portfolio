@@ -1437,6 +1437,33 @@ html.portfolio-cursor-active body {
   color: #f87171;
 }
 
+.contact-form-honeypot {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+.contact-form-fallback {
+  margin-top: 0.75rem;
+  font-size: 0.95rem;
+  color: var(--page-muted);
+  text-align: center;
+  line-height: 1.5;
+}
+
+.contact-form-fallback a {
+  color: var(--accent-strong);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  word-break: break-word;
+}
+
 .contact-3d-illustration {
   display: flex;
   align-items: center;
