@@ -18,7 +18,7 @@ import digitalUmbrellaLogo from './assets/digital-umbrella-logo.png'
 import drdoLogo from './assets/drdo-logo.jpg'
 import React from 'react'
 import SkillIcon3D from './components/SkillIcon3D'
-import ContactForm from './components/ContactForm'
+import ContactDetails from './components/ContactDetails'
 import Contact3DIcon from './components/Contact3DIcon'
 import ScrollToTop from './components/ScrollToTop'
 import PageLoader from './components/PageLoader'
@@ -677,7 +677,7 @@ function ContactSection() {
       variants={fadeUp(reduce)}
     >
       <motion.div variants={fadeUp(reduce, 0.05)} initial="hidden" whileInView="show" viewport={{ once: true }}>
-        <ContactForm />
+        <ContactDetails />
       </motion.div>
       <motion.div
         className="contact-3d-illustration"

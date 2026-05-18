@@ -1332,6 +1332,70 @@ html.portfolio-cursor-active body {
   background: transparent;
 }
 
+.contact-details {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  padding: 3rem 2.5rem;
+  border-radius: 1.5rem;
+  max-width: 560px;
+  min-width: min(100%, 420px);
+  width: 100%;
+}
+
+.contact-details-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 1.75rem;
+}
+
+.contact-details-list li {
+  display: flex;
+  align-items: flex-start;
+  gap: 1rem;
+}
+
+.contact-details-icon {
+  flex-shrink: 0;
+  margin-top: 0.15rem;
+  color: var(--accent-strong);
+}
+
+.contact-details-label {
+  display: block;
+  font-size: 0.8rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--page-muted);
+  margin-bottom: 0.35rem;
+}
+
+.contact-details-list a {
+  color: var(--accent-strong);
+  font-size: 1.05rem;
+  font-weight: 500;
+  text-decoration: none;
+  word-break: break-word;
+  transition: color 0.2s;
+}
+
+.contact-details-list a:hover {
+  color: var(--page-fg);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.contact-details-list p {
+  margin: 0;
+  font-size: 1.05rem;
+  line-height: 1.55;
+  color: var(--page-fg);
+}
+
 .contact-form {
   display: flex;
   flex-direction: column;
@@ -1786,7 +1850,8 @@ html.portfolio-cursor-active body {
     gap: 2rem;
   }
   
-  .contact-form {
+  .contact-form,
+  .contact-details {
     min-width: 100%;
     max-width: 600px;
   }
