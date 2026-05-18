@@ -669,25 +669,48 @@ function ContactSection() {
   const reduce = useReducedMotion()
   return (
     <motion.section
-      className="contact-section-flex portfolio-section"
+      className="contact-section portfolio-section"
       id="contact"
       initial="hidden"
       whileInView="show"
       viewport={defaultViewport}
       variants={fadeUp(reduce)}
     >
-      <motion.div variants={fadeUp(reduce, 0.05)} initial="hidden" whileInView="show" viewport={{ once: true }}>
-        <ContactDetails />
-      </motion.div>
       <motion.div
-        className="contact-3d-illustration"
-        variants={fadeUp(reduce, 0.1)}
+        className="section-heading centered tight"
+        variants={headingStagger(reduce)}
         initial="hidden"
         whileInView="show"
-        viewport={{ once: true }}
+        viewport={defaultViewport}
       >
-        <Contact3DIcon />
+        <motion.div className="section-kicker" variants={headingItem(reduce)}>
+          Get in touch
+        </motion.div>
+        <motion.h2 className="contact-title" variants={headingItem(reduce)}>
+          Contact<span className="section-accent" />
+        </motion.h2>
       </motion.div>
+      <div className="contact-section-body">
+        <motion.div
+          className="contact-details-wrap"
+          variants={fadeUp(reduce, 0.05)}
+          initial="hidden"
+          whileInView="show"
+          viewport={{ once: true }}
+        >
+          <ContactDetails />
+        </motion.div>
+        <motion.div
+          className="contact-3d-illustration"
+          variants={fadeUp(reduce, 0.1)}
+          initial="hidden"
+          whileInView="show"
+          viewport={{ once: true }}
+          aria-hidden
+        >
+          <Contact3DIcon />
+        </motion.div>
+      </div>
     </motion.section>
   )
 }
