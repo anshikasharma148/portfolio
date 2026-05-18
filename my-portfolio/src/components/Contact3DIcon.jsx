@@ -1,14 +1,10 @@
-import React from 'react';
+import { Mail } from 'lucide-react'
 
 export default function Contact3DIcon() {
   return (
-    <div className="envelope-svg-3d-anim">
-      <img
-        src="/icons/envelope.svg"
-        alt="Envelope Icon"
-        style={{ width: '320px', height: '320px', filter: 'drop-shadow(0 8px 32px #a78bfa88)' }}
-        draggable={false}
-      />
+    <div className="contact-mail-visual">
+      <div className="contact-mail-ring" aria-hidden />
+      <Mail className="contact-mail-icon" strokeWidth={1.25} size={112} aria-hidden />
     </div>
-  );
-} 
+  )
+}

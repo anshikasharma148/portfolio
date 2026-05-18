@@ -38,7 +38,7 @@ export default function ContactForm() {
     <div className="contact-container">
       <form className="contact-form" onSubmit={handleSubmit}>
         <div className="contact-label">GET IN TOUCH</div>
-        <h2 className="contact-title">Contact<span className="section-dot"></span></h2>
+        <h2 className="contact-title">Contact<span className="section-accent"></span></h2>
         <label>
           Your Name
           <input
