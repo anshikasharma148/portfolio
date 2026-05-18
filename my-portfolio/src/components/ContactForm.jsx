@@ -4,42 +4,24 @@ const initialState = { name: "", email: "", message: "" };
 
 const WEB3_KEY = import.meta.env.VITE_WEB3FORMS_ACCESS_KEY;
 
-/** FormSubmit inbox when not using Web3Forms. Override with VITE_CONTACT_EMAIL. */
+/** Your inbox (mailto + Web3Forms default recipient). Override with VITE_CONTACT_EMAIL. */
 const CONTACT_EMAIL =
   import.meta.env.VITE_CONTACT_EMAIL || "its.anshika12003@gmail.com";
 
-const FORMSUBMIT_POST = `https://formsubmit.co/${encodeURIComponent(CONTACT_EMAIL)}`;
+function buildMailtoHref({ name, email, message }) {
+  const subject = `Portfolio contact from ${name}`;
+  const body = `Portfolio contact form\n\nName: ${name}\nEmail: ${email}\n\nMessage:\n${message}\n`;
+  return `mailto:${CONTACT_EMAIL}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+}
 
-/**
- * FormSubmit’s /ajax JSON API blocks cross-origin fetch from many hosts (CORS).
- * Classic POST navigates like a normal form — no CORS — so we open it in a new tab.
- */
-function postToFormSubmit({ name, email, message, subject, gotcha }) {
-  const f = document.createElement("form");
-  f.action = FORMSUBMIT_POST;
-  f.method = "POST";
-  f.target = "_blank";
-  f.setAttribute("rel", "noopener noreferrer");
-  f.setAttribute("accept-charset", "UTF-8");
-
-  const add = (fieldName, value) => {
-    const i = document.createElement("input");
-    i.type = "hidden";
-    i.name = fieldName;
-    i.value = value ?? "";
-    f.appendChild(i);
-  };
-
-  add("name", name);
-  add("email", email);
-  add("message", message);
-  add("_subject", subject);
-  add("_gotcha", gotcha);
-  add("_captcha", "false");
-
-  document.body.appendChild(f);
-  f.submit();
-  document.body.removeChild(f);
+/** Opens the visitor’s mail app — no third-party server, works when Web3Forms isn’t configured. */
+function openMailtoCompose(href) {
+  const a = document.createElement("a");
+  a.href = href;
+  a.rel = "noopener noreferrer";
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
 }
 
 export default function ContactForm() {
@@ -71,6 +53,7 @@ export default function ContactForm() {
             email: form.email,
             message: form.message,
             subject,
+            replyto: form.email,
           }),
         });
         const data = await res.json().catch(() => ({}));
@@ -83,7 +66,7 @@ export default function ContactForm() {
             success: false,
             message:
               (typeof data.message === "string" && data.message) ||
-              "Could not send. Check your Web3Forms key or use the email link below.",
+              "Could not send. Check your Web3Forms key in Vercel, or use the email link below.",
           });
         }
       } catch {
@@ -93,27 +76,14 @@ export default function ContactForm() {
       return;
     }
 
-    try {
-      postToFormSubmit({
-        name: form.name,
-        email: form.email,
-        message: form.message,
-        subject,
-        gotcha: honeypot,
-      });
-      setResult({
-        success: true,
-        message:
-          "Your message was sent. A new tab may open with FormSubmit’s confirmation — you can close it. You should get the email shortly.",
-      });
-      setForm(initialState);
-      setHoneypot("");
-    } catch {
-      setResult({
-        success: false,
-        message: "Could not open the submit window. Try again or use the email link below.",
-      });
-    }
+    openMailtoCompose(buildMailtoHref(form));
+    setResult({
+      success: true,
+      message:
+        "Your mail app should open with this message ready to send. Tap Send there to deliver it to me.",
+    });
+    setForm(initialState);
+    setHoneypot("");
     setLoading(false);
   };
 
@@ -124,6 +94,16 @@ export default function ContactForm() {
         <h2 className="contact-title">
           Contact<span className="section-accent"></span>
         </h2>
+        {!WEB3_KEY && (
+          <p className="contact-form-note">
+            Sends through your email app. For one-click send from this page, add a free{" "}
+            <a href="https://web3forms.com" target="_blank" rel="noopener noreferrer">
+              Web3Forms
+            </a>{" "}
+            key as <code className="contact-form-code">VITE_WEB3FORMS_ACCESS_KEY</code> in
+            Vercel and redeploy.
+          </p>
+        )}
         <input
           type="text"
           name="company"
@@ -168,7 +148,7 @@ export default function ContactForm() {
           />
         </label>
         <button type="submit" disabled={loading}>
-          {loading ? "Sending..." : "Send"}
+          {loading ? "Sending..." : WEB3_KEY ? "Send" : "Send with your email app"}
         </button>
         {result && (
           <div className={`contact-result ${result.success ? "success" : "error"}`}>
@@ -176,7 +156,7 @@ export default function ContactForm() {
           </div>
         )}
         <p className="contact-form-fallback">
-          Prefer email?{" "}
+          Prefer a direct link?{" "}
           <a href={`mailto:${CONTACT_EMAIL}?subject=Portfolio%20inquiry`}>{CONTACT_EMAIL}</a>
         </p>
       </form>

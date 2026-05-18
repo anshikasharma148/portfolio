@@ -1449,6 +1449,29 @@ html.portfolio-cursor-active body {
   border: 0;
 }
 
+.contact-form-note {
+  margin: 0 0 0.35rem;
+  padding: 0.85rem 1rem;
+  font-size: 0.9rem;
+  line-height: 1.45;
+  color: var(--page-muted);
+  background: var(--surface-input);
+  border: 1px solid var(--glass-border);
+  border-radius: 0.5rem;
+}
+
+.contact-form-note a {
+  color: var(--accent-strong);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.contact-form-code {
+  font-size: 0.85em;
+  font-family: var(--font-mono, ui-monospace, monospace);
+  word-break: break-all;
+}
+
 .contact-form-fallback {
   margin-top: 0.75rem;
   font-size: 0.95rem;
