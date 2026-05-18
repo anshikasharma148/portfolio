@@ -2,11 +2,45 @@ import React, { useState } from "react";
 
 const initialState = { name: "", email: "", message: "" };
 
-/** Inbox for FormSubmit (free tier, no backend). Override in .env with VITE_CONTACT_EMAIL if needed. */
+const WEB3_KEY = import.meta.env.VITE_WEB3FORMS_ACCESS_KEY;
+
+/** FormSubmit inbox when not using Web3Forms. Override with VITE_CONTACT_EMAIL. */
 const CONTACT_EMAIL =
   import.meta.env.VITE_CONTACT_EMAIL || "its.anshika12003@gmail.com";
 
-const FORMSUBMIT_URL = `https://formsubmit.co/ajax/${encodeURIComponent(CONTACT_EMAIL)}`;
+const FORMSUBMIT_POST = `https://formsubmit.co/${encodeURIComponent(CONTACT_EMAIL)}`;
+
+/**
+ * FormSubmit’s /ajax JSON API blocks cross-origin fetch from many hosts (CORS).
+ * Classic POST navigates like a normal form — no CORS — so we open it in a new tab.
+ */
+function postToFormSubmit({ name, email, message, subject, gotcha }) {
+  const f = document.createElement("form");
+  f.action = FORMSUBMIT_POST;
+  f.method = "POST";
+  f.target = "_blank";
+  f.setAttribute("rel", "noopener noreferrer");
+  f.setAttribute("accept-charset", "UTF-8");
+
+  const add = (fieldName, value) => {
+    const i = document.createElement("input");
+    i.type = "hidden";
+    i.name = fieldName;
+    i.value = value ?? "";
+    f.appendChild(i);
+  };
+
+  add("name", name);
+  add("email", email);
+  add("message", message);
+  add("_subject", subject);
+  add("_gotcha", gotcha);
+  add("_captcha", "false");
+
+  document.body.appendChild(f);
+  f.submit();
+  document.body.removeChild(f);
+}
 
 export default function ContactForm() {
   const [form, setForm] = useState(initialState);
@@ -23,56 +57,62 @@ export default function ContactForm() {
     if (honeypot) return;
     setLoading(true);
     setResult(null);
+
+    const subject = `Portfolio contact from ${form.name}`;
+
+    if (WEB3_KEY) {
+      try {
+        const res = await fetch("https://api.web3forms.com/submit", {
+          method: "POST",
+          headers: { "Content-Type": "application/json", Accept: "application/json" },
+          body: JSON.stringify({
+            access_key: WEB3_KEY,
+            name: form.name,
+            email: form.email,
+            message: form.message,
+            subject,
+          }),
+        });
+        const data = await res.json().catch(() => ({}));
+        if (data.success) {
+          setResult({ success: true, message: "Message sent successfully!" });
+          setForm(initialState);
+          setHoneypot("");
+        } else {
+          setResult({
+            success: false,
+            message:
+              (typeof data.message === "string" && data.message) ||
+              "Could not send. Check your Web3Forms key or use the email link below.",
+          });
+        }
+      } catch {
+        setResult({ success: false, message: "Network error. Please try again." });
+      }
+      setLoading(false);
+      return;
+    }
+
     try {
-      const res = await fetch(FORMSUBMIT_URL, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Accept: "application/json",
-        },
-        body: JSON.stringify({
-          name: form.name,
-          email: form.email,
-          message: form.message,
-          _subject: `Portfolio contact from ${form.name}`,
-          _gotcha: honeypot,
-        }),
+      postToFormSubmit({
+        name: form.name,
+        email: form.email,
+        message: form.message,
+        subject,
+        gotcha: honeypot,
       });
-
-      let data = {};
-      const ct = res.headers.get("content-type");
-      if (ct?.includes("application/json")) {
-        try {
-          data = await res.json();
-        } catch {
-          data = {};
-        }
-      }
-
-      if (!res.ok) {
-        const msg =
-          (typeof data.message === "string" && data.message) ||
-          (typeof data.error === "string" && data.error) ||
-          `Could not send (${res.status}). Try the email link below.`;
-        setResult({ success: false, message: msg });
-        return;
-      }
-
-      if (ct?.includes("application/json")) {
-        if (data.success === false || data.success === "false") {
-          const msg =
-            (typeof data.message === "string" && data.message) ||
-            "Could not send your message. Try the email link below.";
-          setResult({ success: false, message: msg });
-          return;
-        }
-      }
-
-      setResult({ success: true, message: "Message sent successfully!" });
+      setResult({
+        success: true,
+        message:
+          "Your message was sent. A new tab may open with FormSubmit’s confirmation — you can close it. You should get the email shortly.",
+      });
       setForm(initialState);
       setHoneypot("");
     } catch {
-      setResult({ success: false, message: "Network error. Please try again." });
+      setResult({
+        success: false,
+        message: "Could not open the submit window. Try again or use the email link below.",
+      });
     }
     setLoading(false);
   };
@@ -81,7 +121,9 @@ export default function ContactForm() {
     <div className="contact-container">
       <form className="contact-form" onSubmit={handleSubmit}>
         <div className="contact-label">GET IN TOUCH</div>
-        <h2 className="contact-title">Contact<span className="section-accent"></span></h2>
+        <h2 className="contact-title">
+          Contact<span className="section-accent"></span>
+        </h2>
         <input
           type="text"
           name="company"
@@ -140,4 +182,4 @@ export default function ContactForm() {
       </form>
     </div>
   );
-} 
+}
